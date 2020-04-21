@@ -19,5 +19,12 @@ namespace Taxi.Web.Data
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TaxiEntity>().HasIndex(x => x.Plaque).IsUnique();
+        }
     }
 }

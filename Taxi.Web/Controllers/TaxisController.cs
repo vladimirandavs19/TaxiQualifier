@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Taxi.Web.Data;
@@ -55,10 +56,38 @@ namespace Taxi.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                taxiEntity.Plaque = taxiEntity.Plaque.ToUpper();
-                _context.Add(taxiEntity);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    taxiEntity.Plaque = taxiEntity.Plaque.ToUpper();
+                    _context.Add(taxiEntity);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.Message.Contains("duplicate"))
+                        {
+                            ModelState.AddModelError(String.Empty, "The plaque is duplicated");
+                        }
+                        else
+                        {
+                            if (ex.InnerException.InnerException != null)
+                            {
+                                ModelState.AddModelError(String.Empty, ex.InnerException.InnerException.Message);
+                            }
+                            else
+                            {
+                                ModelState.AddModelError(String.Empty, ex.InnerException.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(String.Empty, ex.Message);
+                    }
+                }
             }
             return View(taxiEntity);
         }
@@ -102,6 +131,31 @@ namespace Taxi.Web.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     return NotFound();
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.Message.Contains("duplicate"))
+                        {
+                            ModelState.AddModelError(String.Empty, "The plaque is duplicated");
+                        }
+                        else
+                        {
+                            if (ex.InnerException.InnerException != null)
+                            {
+                                ModelState.AddModelError(String.Empty, ex.InnerException.InnerException.Message);
+                            }
+                            else
+                            {
+                                ModelState.AddModelError(String.Empty, ex.InnerException.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(String.Empty, ex.Message);
+                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
