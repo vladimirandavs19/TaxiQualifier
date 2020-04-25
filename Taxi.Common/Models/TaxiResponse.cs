@@ -15,9 +15,9 @@ namespace Taxi.Common.Models
 
         public UserResponse User { get; set; }
 
-        public float Qualification => (Trips == null || Trips.Count == 0) ? 0 : Trips.Where(t => t.Qualification != 0).Average(t => t.Qualification);
+        public float? Qualification => Trips?.Average(t => t.Qualification);
 
-        public int NumberOfTrips => (Trips == null || Trips.Count == 0) ? 0 : Trips.Count(t => t.Qualification != 0);
+        public int? NumberOfTrips => Trips?.Count;
 
     }
 }

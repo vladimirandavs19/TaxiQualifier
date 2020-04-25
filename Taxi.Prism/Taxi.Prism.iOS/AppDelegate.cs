@@ -1,6 +1,7 @@
 ﻿using Foundation;
 using Prism;
 using Prism.Ioc;
+using Syncfusion.SfBusyIndicator.XForms.iOS;
 using UIKit;
 
 
@@ -23,7 +24,7 @@ namespace Taxi.Prism.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App(new iOSInitializer()));
-
+            new SfBusyIndicatorRenderer();
             return base.FinishedLaunching(app, options);
         }
     }
