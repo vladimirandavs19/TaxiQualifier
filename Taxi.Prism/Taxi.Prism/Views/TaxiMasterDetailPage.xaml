@@ -3,10 +3,12 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                   xmlns:prism="http://prismlibrary.com"
                   prism:ViewModelLocator.AutowireViewModel="True"
-                  x:Class="Taxi.Prism.Views.TaxiMasterDetailPage">
+                  x:Class="Taxi.Prism.Views.TaxiMasterDetailPage"
+                  xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+                  ios:Page.UseSafeArea="true">
 
     <MasterDetailPage.Master>
-        <ContentPage Title="Menu">
+        <ContentPage Title="Menu" BackgroundColor="{StaticResource ColorBackground}">
             <StackLayout Padding="20">
                 <Image HeightRequest="100"
                        Source="taxiservice"/>
@@ -26,16 +28,15 @@
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0"
-                                    	   HeightRequest="50"
+                                    	   HeightRequest="40"
                                     	   Source="{Binding Icon}"
-                                    	   WidthRequest="50"/>
+                                    	   WidthRequest="40"/>
                                     <Label Grid.Column="1"
                                         FontAttributes="Bold"
                                    	    VerticalOptions="Center"
-                                   	    TextColor="Black"
                                         FontSize="Large"
                                    	    Text="{Binding Title}"
-                                           VerticalTextAlignment="Center"/>
+                                        VerticalTextAlignment="Center"/>
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>

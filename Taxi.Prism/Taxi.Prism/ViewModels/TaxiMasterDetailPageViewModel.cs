@@ -41,7 +41,7 @@ namespace Taxi.Prism.ViewModels
                 {
                     Icon = "ic_people",
                     PageName = "GroupPage",
-                    Title = "Admin my user group"
+                    Title = "Admin My Group"
                 },
                 new Menu
                 {
