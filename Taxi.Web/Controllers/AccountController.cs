@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using Taxi.Common.Enums;
 using Taxi.Web.Data.Entities;
 using Taxi.Web.Helpers;
 using Taxi.Web.Models;
@@ -19,13 +19,15 @@ namespace Taxi.Web.Controllers
         private readonly IImageHelper _imageHelper;
         private readonly ICombosHelper _combosHelper;
         private readonly IConfiguration _configuration;
+        private readonly IMailHelper _mailHelper;
 
-        public AccountController(IUserHelper userHelper, IImageHelper imageHelper, ICombosHelper combosHelper, IConfiguration configuration)
+        public AccountController(IUserHelper userHelper, IImageHelper imageHelper, ICombosHelper combosHelper, IConfiguration configuration, IMailHelper mailHelper)
         {
             _userHelper = userHelper;
             _imageHelper = imageHelper;
             _combosHelper = combosHelper;
             _configuration = configuration;
+            _mailHelper = mailHelper;
         }
 
         public IActionResult Login()
@@ -107,6 +109,23 @@ namespace Taxi.Web.Controllers
                     return View(model);
                 }
 
+                var myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                var tokenLink = Url.Action("ConfirmEmail", "Account", new
+                {
+                    userid = user.Id,
+                    token = myToken
+                }, protocol: HttpContext.Request.Scheme);
+                string body = _mailHelper.CreateBody(MailBody.Activation, model.UserName, tokenLink);
+                Common.Models.Response response = _mailHelper.SendMail(model.UserName, "Email confirmation", body);
+                if (response.IsSuccess)
+                {
+                    ViewBag.Message = "The instructions to allow your user has been sent to email.";
+                    return View(model);
+                }
+
+                ModelState.AddModelError(string.Empty, response.Message);
+
+                /*
                 LoginViewModel loginViewModel = new LoginViewModel
                 {
                     Password = model.Password,
@@ -120,6 +139,7 @@ namespace Taxi.Web.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
+                */
             }
 
             model.UserTypes = _combosHelper.GetComboRoles();
@@ -248,6 +268,28 @@ namespace Taxi.Web.Controllers
             }
 
             return BadRequest();
-        } 
+        }
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return NotFound();
+            }
+
+            UserEntity user = await _userHelper.GetUserAsync(new Guid(userId));
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            Microsoft.AspNetCore.Identity.IdentityResult result = await _userHelper.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return NotFound();
+            }
+
+            return View();
+        }
     }
 }

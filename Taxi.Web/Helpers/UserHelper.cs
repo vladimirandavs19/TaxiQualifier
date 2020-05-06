@@ -119,5 +119,16 @@ namespace Taxi.Web.Helpers
             //TODO: Cambiar el parametro en true cuando pase a produccion para que se bloquee el usuario al tercer intento
             return await _signInManager.CheckPasswordSignInAsync(user, password, false);
         }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(UserEntity user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(UserEntity user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
     }
 }
